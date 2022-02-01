@@ -11,88 +11,69 @@ B  = '\033[30m' # black
 G  = '\033[32m' # green
 O  = '\033[33m' # orange
 
-word = "XXXXX"
+class Wordle:
+    def __init__(self):
+        f = open("dict.ini", "r")
+        temp = f.readlines()
+        self.words = [line[:-1] for line in temp]
+        self.word = random.choice(self.words)
+        self.alphaColor = [W] * len(alpha)
 
-charsInWord = set() 
-charsCorrect = set()
-charsNotInWord = set()
+    def getGuess(self):
+        self.guess = input("Enter 5 letter word: ").upper()
 
-def populateWords():
-    f = open("dict.ini", "r")
+        while (not self.guess.isalpha() or len(self.guess) != 5 or self.guess not in self.words):
+            print("Invalid entry!\n")
+            self.guess = input("Enter 5 letter word: ").upper()
+        
+    def checkGuess(self):
+        if (self.guess == self.word):
+            print("You Got It!!\n")
+            return True
 
-    temp = f.readlines()
+        self.guessColor = [W] * 5
 
-    words = [line[:-1] for line in temp]
+        freq = {i : self.word.count(i) for i in set(self.word)}
 
-    global word 
-    word = random.choice(words)
+        for i in range(5):
+            c = self.guess[i]
+            if(c == self.word[i]):
+                self.guessColor[i] = G
+                freq[c] -= 1
+                self.alphaColor[alpha.index(c)] = G
+            if(c != self.word[i] and c in self.word and freq[c] > 0):
+                self.guessColor[i] = O
+                freq[c] -= 1
+                if(self.alphaColor[alpha.index(c)] != G):
+                    self.alphaColor[alpha.index(c)] = O
+            if(c not in self.word):
+                self.alphaColor[alpha.index(c)] = B
 
-def getGuess():
-    value = input("Enter 5 letter word: ").upper()
+        self.printBoard(zip(self.guessColor, list(self.guess)))
+        self.printBoard(zip(self.alphaColor, alpha))
 
-    if(not value.isalpha() or len(value) != 5):
-        print("Invalid entry!\n")
-        getGuess()
-    
-    return value
+    def printBoard(self, s):
+        for c in s:
+            print(c[0] + c[1] + " " + W, end='')
 
-def checkGuess(guess):
+        print("\n")
 
-    if (guess == word):
-        print("You Got It!!\n")
-        return True
-
-    for i in range(5):
-        if(guess[i] == word[i]):
-            charsCorrect.add(guess[i])
-    
-    for c in guess:
-        if (word.find(c) != -1):
-            charsInWord.add(c)
-        else:
-            charsNotInWord.add(c)
-
-    printGuess(guess)
-    print("\n")
-    printAlpha(alpha)
-    print("\n")
-
-def printGuess(guess):
-    for i in range(5):
-        if(guess[i] == word[i]):
-            print(G + guess[i] + W, end='')
-        elif(guess[i] in charsInWord):
-            print(O + guess[i] + W, end='')
-        else:
-            print(guess[i], end='')
-
-def printAlpha(s):
-
-    for c in alpha:
-        if c in charsCorrect:
-            print(G + c + " " + W, end='')
-        elif c in charsInWord:
-            print(O + c + " " + W, end='')
-        elif c in charsNotInWord:
-            print(B + c + " " + W, end='')
-        else:
-            print(c + " ", end='')
-
+    def printFail(self):
+        print("You Failed!! - Word is: " + self.word)
 
 def main():
-    populateWords()
+    w = Wordle()
 
     for i in range(6):
-        r = checkGuess(getGuess())
+        w.getGuess()
+        r = w.checkGuess()
 
         if(not r and i != 5):
             print("Guess Again! - " + str(i+1))
         elif(not r and i == 5):
-            print("You Failed!! - Word is: " + word)
+            w.printFail()
         elif(r):
             return
-
-
 
 if __name__ == "__main__":
     main()
