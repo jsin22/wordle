@@ -13,16 +13,20 @@ O  = '\033[33m' # orange
 
 class Wordle:
     def __init__(self):
+        f = open("words.ini", "r")
+        temp = f.readlines()
+        words = [line[:-1] for line in temp]
+        self.word = random.choice(words)
+        self.alphaColor = [W] * len(alpha)
+
         f = open("dict.ini", "r")
         temp = f.readlines()
-        self.words = [line[:-1] for line in temp]
-        self.word = random.choice(self.words)
-        self.alphaColor = [W] * len(alpha)
+        self.dict = [line[:-1] for line in temp]
 
     def getGuess(self):
         self.guess = input("Enter 5 letter word: ").upper()
 
-        while (not self.guess.isalpha() or len(self.guess) != 5 or self.guess not in self.words):
+        while (not self.guess.isalpha() or len(self.guess) != 5 or self.guess not in self.dict):
             print("Invalid entry!\n")
             self.guess = input("Enter 5 letter word: ").upper()
         
